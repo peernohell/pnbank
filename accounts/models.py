@@ -17,6 +17,14 @@ class Account(models.Model):
     else:
       return self.initial_amount + total_spend
 
+  def current_checked_amount(self):
+    from django.db.models import Sum
+    total_spend = Transaction.objects.filter(account=self.id, checked=True).aggregate(Sum('amount'))['amount__sum']
+    if total_spend == None:
+      return self.initial_amount
+    else:
+      return self.initial_amount + total_spend
+
 class Tag(models.Model):
   name = models.CharField(max_length=30)
   
