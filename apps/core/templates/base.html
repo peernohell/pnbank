@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <meta http-equiv="content-language" content="en" />
+      <meta name="robots" content="noindex, nofollow" />
+
+      <title>{% block title %}{% endblock %} - pnbank</title>
+      {% block css %}
+      <link rel="stylesheet" type="text/css"  media="screen, projection" href="{% url static "screen.css" %}" />
+      <link rel="stylesheet" type="text/css"  media="print" href="{% url static "print.css" %}" />
+      <!--[if IE]>
+      <link rel="stylesheet" type="text/css" media="screen, projection" href="{% url static "ie.css" %}" />
+      <![endif]-->
+      {% endblock %}
+
+      {% block extra-head %}{% endblock %}
+  </head>
+
+  <body>
+    {% block header %}
+      <div id="header">
+        <div class="menu">
+            <a href="/"><img src="{% url static "img/global/logo.png" %}" alt="" /></a>
+          <a href="{% url account_list %}">Generic views sample</a> |
+          --
+          {% if user.is_authenticated %}
+            Welcome, {{ user.username }}!
+            <a href="{% url logout %}">Logout</a>
+          {% else %}
+            <a href="{% url login %}">Login</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endblock %}
+    <div id="content" class="column container">
+      {% block content-header %}
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+        {% if info %}<div class="info">{{ info }}</div>{% endif %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="info">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endblock %}
+      {% block content %}{% endblock %}
+    </div>
+
+    {% block js %}
+    <script type="text/javascript" src="{% url static "combined-{{ LANGUAGE_CODE }}.js" %}"></script>
+    {% endblock %}
+
+  </body>
+</html>

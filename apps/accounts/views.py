@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from pnbank.accounts.models import Account
-# Create your views here.
+
+from pnbank.apps.accounts.models import Account
 
 @login_required
-def index(request):
+def list_accounts(request):
   accounts = Account.objects.all()
   output = ', '.join(["%s (%s)" % (t.name, t.current_amount) for t in accounts])
   return HttpResponse(output)
-  
+
 @login_required
-def show(request, account_id):
+def view_account(request, account_id):
   return HttpResponse("You're looking at account %s." % account_id)
 

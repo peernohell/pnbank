@@ -1,0 +1,16 @@
+add_to_path ()
+{
+    if [[ "$PYTHONPATH" =~ (^|:)"${1}"(:|$) ]]
+    then
+        return 0
+    fi
+    export PYTHONPATH=$1:$PYTHONPATH
+}
+
+
+cd ..
+pwd="`pwd`/"
+externals="$pwd/pnbank/externals/"
+add_to_path $pwd
+add_to_path $externals
+cd - > /dev/null
