@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Delete {{ object_name|title }} {{ object }}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ request.path }}" id="object_delete">
+    {% for field in form.hidden_fields %}
+    {{ field }}
+    {% endfor %}
+
+    <div class="spaced">
+        You're attempting to delete {{ object_name|title }} "{{ object }}", is it really what you want to do ?
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="primal">
+            Delete {{ object_name }}
+        </button>
+
+        <a href="{% url view_account object.pk %}" class="button">
+            Cancel
+        </a>
+    </div>
+</form>
+{% endblock %}

@@ -5,5 +5,30 @@ Account List
 {% endblock %}
 
 {% block content %}
-    {{ output|safe }}
+
+{% if object_list %}
+<div id="accounts">
+    {% for object in object_list %}
+    <div class="account">
+        Name {{ object.name }} |
+        <a href="{% url view_account object.pk %}">view</a> |
+        <a href="{% url update_account object.pk %}">edit</a> |
+        <a href="{% url delete_account object.pk %}">delete</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="info">
+    No account found. <a href="{% url create_account %}">Create a new account ?</a>
+</div>
+{% endif %}
+
+{% if qss %}
+<ul id="qss">
+    <li>{{ qss.this_day|default:0 }} new accounts today.</li>
+    <li>{{ qss.this_month|default:0 }} new accounts this month.</li>
+    <li>{{ qss.this_year|default:0 }} new accounts this year.</li>
+    <li>{{ qss.until_now|default:0 }} new accounts until now.</li>
+</ul>
+{% endif %}
 {% endblock %}

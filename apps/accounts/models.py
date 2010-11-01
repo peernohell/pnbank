@@ -2,15 +2,18 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum
+
+from pnbank.externals.django_extensions.db.models import TimeStampedModel
+
 import datetime
 
-class Account(models.Model):
+class Account(TimeStampedModel):
     name = models.CharField(max_length=100)
     initial_amount = models.FloatField(default=0.0)
     owner = models.ForeignKey(User, related_name="%(class)ss")
 
     def __unicode__(self):
-        return self.name
+        return u"%s" % self.name
 
     def current_amount(self):
         total_spend = Entry.objects.filter(account = self.id)\
@@ -24,52 +27,59 @@ class Account(models.Model):
 
         return self.initial_amount + total_spend
 
-
 class Tag(models.Model):
-    name = models.CharField(max_length=30)
-
-    def __unicode__(self):
-        return self.name
-
-
-class Transaction(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True, null=True)
-    date = models.DateField()
-
-    def amount(self):
-        from django.db.models import Sum
-        amount = Entry.objects.filter(transaction=self.pk).aggregate(Sum('amount'))['amount__sum']
-        return amount == None and 0 or amount
-
-    def oldestEntry(self):
-        return Entry.objects.filter(transaction=self.pk).order_by('date')[0]
-
-    def updateDate(self):
-        if(self.date != self.oldestEntry().date):
-            self.date = self.oldestEntry().date
-            self.save()
+    owner = models.ForeignKey(User, related_name="%(class)ss")
 
     def __unicode__(self):
-        return self.name
+        return u"%s" % self.name
 
-class Entry(models.Model):
-	amount = models.FloatField()
-	date = models.DateField()
-	value_date = models.DateField()
-	checked = models.BooleanField(default=False)
-	account = models.ForeignKey(Account)
-	transaction = models.ForeignKey(Transaction)
-	tags = models.ManyToManyField(Tag)
+class ThirdParty(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, related_name="thirdparties")
+    tag = models.ForeignKey(Tag, related_name="thirdparties")
 
-	def name(self):
-		return self.transaction.name
+    def __unicode__(self):
+        return u"%s" % self.name
 
-	def __unicode__(self):
-		return self.name()
+    class Meta:
+        verbose_name_plural = "Third Parties"
 
-def updateTransactionDate(sender, **kwargs):
-	kwargs['instance'].transaction.updateDate()
+class Transaction(TimeStampedModel):
+    description = models.CharField(max_length=255, blank=True, null=True)
+    third_party = models.ForeignKey(ThirdParty, related_name="%(class)ss", blank=True, null=True)
 
-models.signals.post_save.connect(updateTransactionDate, sender=Entry)
+    def get_amount(self):
+        return self.entries.aggregate(Sum('amount'))['amount__sum'] or 0.0
+    amount = property(get_amount)
 
+    def get_value_date(self):
+        try:
+            return self.entries.order_by('value_date')[0].value_date
+        except IndexError:
+            return None
+    value_date = property(get_value_date)
+
+    def is_checked(self):
+        return self.entries.filter(checked = False).count() == 0
+
+    def __unicode__(self):
+        return u"%s" % self.name
+
+class Entry(TimeStampedModel):
+    account = models.ForeignKey(Account, related_name="entries")
+    transaction = models.ForeignKey(Transaction, related_name="entries")
+    amount = models.FloatField()
+    value_date = models.DateField()
+    checked = models.BooleanField(default=False)
+    tags = models.ManyToManyField(Tag, related_name="entries")
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def name(self):
+        return self.transaction.name
+
+    def __unicode__(self):
+        return u"%s" % self.name
+
+    class Meta:
+        verbose_name_plural = "Entries"

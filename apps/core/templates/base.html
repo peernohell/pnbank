@@ -8,6 +8,7 @@
       <meta http-equiv="content-language" content="en" />
       <meta name="robots" content="noindex, nofollow" />
 
+      <link rel="shortcut icon" href="{% url static "img/favicon.ico" %}" />
       {% compressed_css 'base' %}
 
       {% block extra-head %}{% endblock %}
@@ -17,28 +18,41 @@
     {% block header %}
       <div id="header">
         <div class="menu">
-            <a href="{% url index %}"><img src="{% url static "img/global/logo.png" %}" alt="" /></a>
-          <a href="{% url account_list %}">Generic views sample</a> |
-          --
-          {% if user.is_authenticated %}
+            <a href="{% url index %}"><img src="{% url static "img/goldbar.png" %}" alt="PN Bank" /></a>
+            {% if user.is_authenticated %}
             Welcome, {{ user.username }}!
             <a href="{% url logout %}">Logout</a>
-          {% else %}
+            {% else %}
             <a href="{% url login %}">Login</a>
-          {% endif %}
+            {% endif %}
         </div>
-      </div>
+    </div>
     {% endblock %}
     <div id="content" class="column container">
       {% block content-header %}
-        {% if error %}<div class="error">{{ error }}</div>{% endif %}
-        {% if info %}<div class="info">{{ info }}</div>{% endif %}
+        {% if form and form.errors %}
+            <ul class="message errors">
+                <li>Some fields are invalid, please fix them before saving.</li>
+                {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                <li class="non-field">{{ error }}</li>
+                {% endfor %}
+                {% endif %}
+            </ul>
+        {% endif %}
+
         {% if messages %}
-          {% for message in messages %}
-            <div class="info">{{ message }}</div>
-          {% endfor %}
+            {% regroup messages by tags as tags_list %}
+            {% for tags in tags_list %}
+            <ul class="message {{ tags.grouper|default:"valid" }}">
+                {% for message in tags.list %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endfor %}
         {% endif %}
       {% endblock %}
+
       {% block content %}{% endblock %}
     </div>
 

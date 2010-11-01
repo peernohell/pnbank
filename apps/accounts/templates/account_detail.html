@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+Account List
+{% endblock %}
+
+{% block content %}
+<div class="account">
+    <strong>Name</strong> {{ object.name }}<br />
+    <strong>Initial Amount</strong> {{ object.initial_amount }}
+</div>
+
+{% if qss_entries or qss_transactions %}
+<ul id="qss">
+    <li>{{ qss_entries.this_day|default:0 }} new entries today.</li>
+    <li>{{ qss_entries.this_month|default:0 }} new entries this month.</li>
+    <li>{{ qss_entries.this_year|default:0 }} new entries this year.</li>
+    <li>{{ qss_entries.until_now|default:0 }} new entries until now.</li>
+
+    <li>{{ qss_transactions.this_day|default:0 }} new transactions today.</li>
+    <li>{{ qss_transactions.this_month|default:0 }} new transactions this month.</li>
+    <li>{{ qss_transactions.this_year|default:0 }} new transactions this year.</li>
+    <li>{{ qss_transactions.until_now|default:0 }} new transactions until now.</li>
+</ul>
+{% endif %}
+
+<a href="{% url update_account object.pk %}" class="button primal">Edit Account</a>
+<a href="{% url delete_account object.pk %}" class="button">Delete Account</a>
+<a href="{% url list_accounts %}" class="button">Back to Account List</a>
+
+{% endblock %}

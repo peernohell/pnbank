@@ -2,3 +2,5 @@ local_settings.py
 *.pyc
 *.sqlite3
 public/media
+public/css/*.r1*.css
+public/js/*.r1*.js

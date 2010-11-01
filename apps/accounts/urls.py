@@ -5,17 +5,17 @@ urlpatterns = patterns(
     'pnbank.apps.accounts.views',
 
     # new
-    #url(r'^new/$', 'create_account', name='account_add'),
+    url(r'^new/$', 'create_account', name='create_account'),
 
     # view account
-    url(r'^view/(?P<account_id>\d+)/$', 'view_account', name='account_view'),
+    url(r'^view/(?P<account_id>\d+)/$', 'view_account', name='view_account'),
 
     # edit account
-    #url(r'^edit/(?P<account_id>\d+)/$', 'update_account', name='account_edit'),
+    url(r'^edit/(?P<account_id>\d+)/$', 'update_account', name='update_account'),
 
     # list accounts
-    url(r'^all/$', 'list_accounts', name='account_list'),
+    url(r'^all/$', 'list_accounts', name='list_accounts'),
 
     # delete account
-    #url(r'^delete/(?P<account_id>\d+)/$', 'delete_account', name='account_delete'),
+    url(r'^delete/(?P<account_id>\d+)/$', 'delete_account', name='delete_account'),
 )

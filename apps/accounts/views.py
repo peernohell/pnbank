@@ -1,44 +1,98 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.contrib.auth.decorators import permission_required
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
+from django.views.generic.create_update import create_object, update_object, delete_object
+from django.views.generic.list_detail import object_detail, object_list
 
 from pnbank.apps.accounts.models import Account
+from pnbank.apps.accounts.forms import get_account_form
+
 from pnbank.externals.qsstats import QuerySetStats
 
-import datetime
-
-@login_required
+@permission_required('accounts.list_account')
 def list_accounts(request):
-    accounts = Account.objects.all()
-    output = ', '.join(["%s (%s)" % (t.name, t.current_amount) for t in accounts])
+    qss = None
+    qs = Account.objects.filter(owner = request.user)
 
-    qs = User.objects.all()
-    qss = QuerySetStats(qs, 'date_joined')
+    if qs:
+        qss = QuerySetStats(qs, 'created')
 
-    output += '%s new accounts today.<br/>' % qss.this_day()
-    output += '%s new accounts this month.<br/>' % qss.this_month()
-    output += '%s new accounts this year.<br/>' % qss.this_year()
-    output += '%s new accounts until now.<br/>' % qss.until_now()
-
-
-    today = datetime.date.today()
-    seven_days_ago = today - datetime.timedelta(days=7)
-
-    time_series = qss.time_series(seven_days_ago, today)
-    output += 'New users in the last 7 days: %s<br />' % [t[1] for t in time_series]
-
-    return render_to_response(
-        "account_list.html",
-        {
-            'output': output,
-        },
-        context_instance = RequestContext(request)
+    return object_list(
+        request = request,
+        queryset = qs,
+        template_name = 'account_list.html',
+        allow_empty = True,
+        extra_context = {
+            'qss': qss,
+        }
     )
 
-@login_required
+@permission_required('accounts.add_account')
+def create_account(request):
+    return create_object(
+        request,
+        form_class = get_account_form(request),
+        post_save_redirect = reverse('list_accounts'),
+        template_name = 'account_form.html',
+    )
+
+@permission_required('accounts.change_account')
+def update_account(request, account_id):
+    if not request.user.is_superuser:
+        get_object_or_404( Account, owner=request.user, pk=account_id)
+    else:
+        get_object_or_404( Account, pk=account_id)
+
+    return update_object(
+        request,
+        form_class = get_account_form(request),
+        post_save_redirect = reverse('view_account', kwargs={'account_id': account_id}),
+        object_id = account_id,
+        template_name = 'account_form.html',
+    )
+
+@permission_required('accounts.view_account')
 def view_account(request, account_id):
-  return HttpResponse("You're looking at account %s." % account_id)
+    if not request.user.is_superuser:
+        get_object_or_404( Account, owner=request.user, pk=account_id)
+    else:
+        get_object_or_404( Account, pk=account_id)
+
+    qss_entries = None
+    qss_transactions = None
+    qs = Account.objects.filter(pk = account_id)
+
+    if qs:
+        qss_entries = QuerySetStats(qs, 'entries')
+        qss_transactions = QuerySetStats(qs, 'entries__transaction')
+
+    return object_detail(
+        request = request,
+        queryset = qs,
+        object_id = account_id,
+        template_name = "account_detail.html",
+        extra_context = {
+            'qss_entries': qss_entries,
+            'qss_transactions': qss_transactions,
+        }
+    )
+
+@permission_required("accounts.delete_account")
+def delete_account(request, account_id):
+    if not request.user.is_superuser:
+        get_object_or_404( Account, owner=request.user, pk=account_id)
+    else:
+        get_object_or_404( Account, pk=account_id)
+
+    return delete_object(
+        request = request,
+        object_id = account_id,
+        post_delete_redirect = reverse('list_accounts'),
+        model = Account,
+        template_name = 'confirm_delete.html',
+        extra_context = {
+            'object_name': Account._meta.verbose_name.lower(),
+        }
+    )
 
