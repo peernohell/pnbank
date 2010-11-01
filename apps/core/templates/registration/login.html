@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" media="screen" href="{% url static "css/login.css" %}" />
+{% endblock %}
+
+{% block menu %}{% endblock %}
+
+{% block content %}
+{% url index as root_url %}
+<div class="vertical-center">
+    <form method="post" action="." id="login">{% csrf_token %}
+        {% csrf_token %}
+        <div class="content prefix_8 grid_10 suffix_6 alpha omega">
+            <div class="grid_10 alpha omega login_box">
+                <div class="grid_10 alpha omega header"></div>
+                <div class="grid_10 alpha omega inputs">
+                    <input type="hidden" name="next" value="{{ next|default:root_url }}" />
+                    {% for field in form.visible_fields %}
+                    <div class="fields_margin">
+                        <div class="prefix_1 grid_3 right">
+                            {{ field.label_tag }}
+                        </div>
+                        <div class="grid_5 suffix_1 alpha omega">
+                            {{ field }}
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    {% endfor %}
+                    <div class="prefix_4 grid_2 suffix_4 alpha omega spaced fields_margin">
+                        <button type="submit" />
+                            Login
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
-from pnbank.accounts.models import Account, Transaction, Tag, Entry
+# -*- coding: utf-8 -*-
 from django.contrib import admin
+from pnbank.apps.accounts.models import Account, Transaction, Tag, Entry
 
 class AccountAdmin(admin.ModelAdmin):
   list_display = ['name', 'initial_amount', 'current_amount', 'current_checked_amount']
@@ -24,7 +25,6 @@ class TransactionAdmin(admin.ModelAdmin):
     obj.date = datetime.date(1900,01,01)
     obj.save()
 
-  
 admin.site.register(Account, AccountAdmin)
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(Entry, EntryAdmin)

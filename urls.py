@@ -1,23 +1,27 @@
-from django.conf.urls.defaults import *
-
-# Uncomment the next two lines to enable the admin:
+# -*- coding: utf-8 -*-
+from django.conf import settings
+from django.conf.urls.defaults import patterns, url, include
 from django.contrib import admin
+
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    # Example:
-    # (r'^pnbank/', include('pnbank.accounts.urls')),
+urlpatterns = patterns('django.views.generic.simple', )
 
-    # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
-    # to INSTALLED_APPS to enable admin documentation:
-    # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
-  (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-  (r'^accounts/$', 'pnbank.accounts.views.index'),
-  (r'^accounts/(?P<account_id>\d+)$', 'pnbank.accounts.views.show'),
-#    (r'^accounts/(?P<account_id>)\new$', 'pnbank.accounts.views.new'),
-#    (r'^accounts/(?P<account_id>)\d+/edit$', 'pnbank.accounts.views.edit'),
-    
-    # Uncomment the next line to enable the admin:
-  (r'^admin/', include(admin.site.urls)),
-  (r'^$', 'pnbank.accounts.views.index')
+urlpatterns += patterns(
+    'django.contrib.auth.views',
+    url(r'^accounts/login/$', 'login', name = 'login'),
+    url(r'^accounts/logout/$', 'logout_then_login', name = 'logout'),
+)
+
+urlpatterns += patterns(
+    '',
+    url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^accounts/', include('pnbank.apps.accounts.urls')),
+    url(r'^import/', include('csvimporter.urls')),
+    url(r'^', include('pnbank.apps.core.urls')),
+
+    url(r'^public/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True},
+        name='static'),
 )
