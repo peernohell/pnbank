@@ -17,7 +17,7 @@
     {% block header %}
       <div id="header">
         <div class="menu">
-            <a href="/"><img src="{% url static "img/global/logo.png" %}" alt="" /></a>
+            <a href="{% url index %}"><img src="{% url static "img/global/logo.png" %}" alt="" /></a>
           <a href="{% url account_list %}">Generic views sample</a> |
           --
           {% if user.is_authenticated %}

@@ -18,6 +18,7 @@ urlpatterns += patterns(
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^accounts/', include('pnbank.apps.accounts.urls')),
+    url(r'^import/', include('csvimporter.urls')),
     url(r'^', include('pnbank.apps.core.urls')),
 
     url(r'^public/(?P<path>.*)$', 'django.views.static.serve',
