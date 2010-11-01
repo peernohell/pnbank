@@ -37,19 +37,18 @@ class Transaction(models.Model):
     description = models.TextField(blank=True, null=True)
     date = models.DateField()
 
-	def amount(self):
-		from django.db.models import Sum
-		amount = Entry.objects.filter(transaction=self.pk).aggregate(Sum('amount'))['amount__sum']
-		return amount == None and 0 or amount
+    def amount(self):
+        from django.db.models import Sum
+        amount = Entry.objects.filter(transaction=self.pk).aggregate(Sum('amount'))['amount__sum']
+        return amount == None and 0 or amount
 
-	def oldestEntry(self):
-		from datetime import date
-		return Entry.objects.filter(transaction=self.pk).order_by('date')[0]
+    def oldestEntry(self):
+        return Entry.objects.filter(transaction=self.pk).order_by('date')[0]
 
-	def updateDate(self):
-		if(self.date != self.oldestEntry().date):
-			self.date = self.oldestEntry().date
-			self.save()
+    def updateDate(self):
+        if(self.date != self.oldestEntry().date):
+            self.date = self.oldestEntry().date
+            self.save()
 
     def __unicode__(self):
         return self.name
@@ -70,7 +69,6 @@ class Entry(models.Model):
 		return self.name()
 
 def updateTransactionDate(sender, **kwargs):
-	import datetime
 	kwargs['instance'].transaction.updateDate()
 
 models.signals.post_save.connect(updateTransactionDate, sender=Entry)
