@@ -127,6 +127,7 @@ INSTALLED_APPS = (
     'csvimporter',
     'django_extensions',
     'qsstats',
+    'south',
 
     'pnbank.apps.accounts',
     'pnbank.apps.core',
