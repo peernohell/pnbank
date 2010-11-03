@@ -1,0 +1,12 @@
+[submodule "externals/django-compress.git"]
+	path = externals/django-compress.git
+	url = git://github.com/pelme/django-compress.git
+[submodule "externals/django-csv-importer.git"]
+	path = externals/django-csv-importer.git
+	url = git://github.com/girasquid/django-csv-importer.git
+[submodule "externals/django-extensions.git"]
+	path = externals/django-extensions.git
+	url = git://github.com/django-extensions/django-extensions.git
+[submodule "externals/django-qsstats.git"]
+	path = externals/django-qsstats.git
+	url = git://github.com/mcroydon/django-qsstats.git
