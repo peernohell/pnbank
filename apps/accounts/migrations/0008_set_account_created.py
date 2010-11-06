@@ -1,21 +1,24 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        
-        # Deleting field 'Entry.date'
-        db.delete_column('accounts_entry', 'date')
+        for a in orm['accounts.Account'].objects.all():
+            try:
+                date = a.entries.all()[0].date
+            except IndexError:
+                continue
+
+            a.created = a.modified = date
+            a.save()
 
 
     def backwards(self, orm):
-        
-        # Adding field 'Entry.date'
-        db.add_column('accounts_entry', 'date', self.gf('django.db.models.fields.DateField')(default=datetime.date(2010, 11, 1)), keep_default=False)
+        pass
 
 
     models = {
@@ -33,11 +36,10 @@ class Migration(SchemaMigration):
             'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'entries'", 'to': "orm['accounts.Account']"}),
             'amount': ('django.db.models.fields.FloatField', [], {}),
             'checked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
+            'date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'entries'", 'symmetrical': 'False', 'to': "orm['accounts.Tag']"}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'entries'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['accounts.Tag']"}),
+            'third_party': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'entries'", 'null': 'True', 'to': "orm['accounts.ThirdParty']"}),
             'transaction': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'entries'", 'to': "orm['accounts.Transaction']"}),
             'value_date': ('django.db.models.fields.DateField', [], {})
         },
@@ -45,22 +47,19 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Tag'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': "orm['auth.User']"})
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'tags'", 'null': 'True', 'to': "orm['auth.User']"})
         },
         'accounts.thirdparty': {
             'Meta': {'object_name': 'ThirdParty'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'thirdparties'", 'to': "orm['auth.User']"}),
-            'tag': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'thirdparties'", 'to': "orm['accounts.Tag']"})
+            'tag': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'thirdparties'", 'null': 'True', 'to': "orm['accounts.Tag']"})
         },
         'accounts.transaction': {
             'Meta': {'object_name': 'Transaction'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'third_party': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'transactions'", 'null': 'True', 'to': "orm['accounts.ThirdParty']"})
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},

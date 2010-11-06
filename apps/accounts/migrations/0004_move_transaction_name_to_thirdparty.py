@@ -1,60 +1,36 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        
-        # Adding field 'Transaction.created'
-        db.add_column('accounts_transaction', 'created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
+        for t in orm['accounts.Transaction'].objects.all():
+            try:
+                owner = t.entries.all()[0].account.owner
+            except IndexError:
+                owner = None
 
-        # Adding field 'Transaction.modified'
-        db.add_column('accounts_transaction', 'modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
-
-        # Adding field 'Account.created'
-        db.add_column('accounts_account', 'created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
-
-        # Adding field 'Account.modified'
-        db.add_column('accounts_account', 'modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
-
-        # Adding field 'Entry.created'
-        db.add_column('accounts_entry', 'created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
-
-        # Adding field 'Entry.modified'
-        db.add_column('accounts_entry', 'modified', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime.now, blank=True), keep_default=False)
-
+            orm['accounts.ThirdParty'].objects.get_or_create(
+                name = t.name,
+                owner = owner
+            )
 
     def backwards(self, orm):
-        
-        # Deleting field 'Transaction.created'
-        db.delete_column('accounts_transaction', 'created')
-
-        # Deleting field 'Transaction.modified'
-        db.delete_column('accounts_transaction', 'modified')
-
-        # Deleting field 'Account.created'
-        db.delete_column('accounts_account', 'created')
-
-        # Deleting field 'Account.modified'
-        db.delete_column('accounts_account', 'modified')
-
-        # Deleting field 'Entry.created'
-        db.delete_column('accounts_entry', 'created')
-
-        # Deleting field 'Entry.modified'
-        db.delete_column('accounts_entry', 'modified')
-
+        for t in orm['accounts.Transaction'].objects.all():
+            try:
+                t.name = t.entries.all()[0].third_party.name
+            except IndexError:
+                continue
+            t.save()
 
     models = {
         'accounts.account': {
             'Meta': {'object_name': 'Account'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'initial_amount': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'accounts'", 'to': "orm['auth.User']"})
         },
@@ -63,12 +39,10 @@ class Migration(SchemaMigration):
             'account': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'entries'", 'to': "orm['accounts.Account']"}),
             'amount': ('django.db.models.fields.FloatField', [], {}),
             'checked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'date': ('django.db.models.fields.DateField', [], {}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'entries'", 'symmetrical': 'False', 'to': "orm['accounts.Tag']"}),
+            'tags': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'entries'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['accounts.Tag']"}),
+            'third_party': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'entries'", 'null': 'True', 'to': "orm['accounts.ThirdParty']"}),
             'transaction': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'entries'", 'to': "orm['accounts.Transaction']"}),
             'value_date': ('django.db.models.fields.DateField', [], {})
         },
@@ -76,22 +50,20 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Tag'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tags'", 'to': "orm['auth.User']"})
+            'owner': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'tags'", 'null': 'True', 'to': "orm['auth.User']"})
         },
         'accounts.thirdparty': {
             'Meta': {'object_name': 'ThirdParty'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'thirdparties'", 'to': "orm['auth.User']"}),
-            'tag': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'thirdparties'", 'to': "orm['accounts.Tag']"})
+            'tag': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'thirdparties'", 'null': 'True', 'to': "orm['accounts.Tag']"})
         },
         'accounts.transaction': {
             'Meta': {'object_name': 'Transaction'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'third_party': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'transactions'", 'null': 'True', 'to': "orm['accounts.ThirdParty']"})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'auth.group': {
             'Meta': {'object_name': 'Group'},

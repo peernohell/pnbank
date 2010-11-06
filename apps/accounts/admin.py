@@ -3,19 +3,19 @@ from django.contrib import admin
 from pnbank.apps.accounts.models import Account, Transaction, Tag, Entry, ThirdParty
 
 class AccountAdmin(admin.ModelAdmin):
-    list_display = ['name', 'initial_amount', 'current_amount', 'current_checked_amount']
+    list_display = ['created', 'name', 'initial_amount', 'current_amount', 'current_checked_amount']
 
 class EntryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'amount', 'created', 'value_date','checked']
-    list_filter = ['created', 'value_date', 'account']
-    date_hierarchy = 'created'
+    list_display = ['name', 'amount', 'date', 'value_date','checked']
+    list_filter = ['date', 'value_date', 'account']
+    date_hierarchy = 'date'
 
 class EntryInline(admin.TabularInline):
     model = Entry
     raw_id_fields = ("tags",)
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ['amount', 'created']
+    list_display = ['description', 'amount']
     inlines =  [ EntryInline, ]
 
     #def save_model(self, request, obj, form, change):

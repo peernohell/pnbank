@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse
+from django.db.models import Min
 from django.shortcuts import get_object_or_404
 from django.views.generic.create_update import create_object, update_object, delete_object
 from django.views.generic.list_detail import object_detail, object_list
 
-from pnbank.apps.accounts.models import Account
+from pnbank.apps.accounts.models import Account, Transaction
 from pnbank.apps.accounts.forms import get_account_form
 
 from pnbank.externals.qsstats import QuerySetStats
@@ -62,10 +63,12 @@ def view_account(request, account_id):
     qss_entries = None
     qss_transactions = None
     qs = Account.objects.filter(pk = account_id)
+    transaction_qs = Transaction.objects.filter(entries__account = account_id)\
+            .annotate(date=Min('entries__date'))
 
     if qs:
-        qss_entries = QuerySetStats(qs, 'entries')
-        qss_transactions = QuerySetStats(qs, 'entries__transaction')
+        qss_entries = QuerySetStats(qs, 'entries__date')
+        qss_transactions = QuerySetStats(transaction_qs, 'date')
 
     return object_detail(
         request = request,

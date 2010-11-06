@@ -29,7 +29,7 @@ class Account(TimeStampedModel):
 
 class Tag(models.Model):
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(User, related_name="%(class)ss")
+    owner = models.ForeignKey(User, related_name="%(class)ss", blank=True, null=True)
 
     def __unicode__(self):
         return u"%s" % self.name
@@ -37,28 +37,27 @@ class Tag(models.Model):
 class ThirdParty(models.Model):
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(User, related_name="thirdparties")
-    tag = models.ForeignKey(Tag, related_name="thirdparties")
+    tag = models.ForeignKey(Tag, related_name="thirdparties", null=True, blank=True)
 
     def __unicode__(self):
         return u"%s" % self.name
 
     class Meta:
-        verbose_name_plural = "Third Parties"
+        verbose_name_plural = "thirdparties"
 
-class Transaction(TimeStampedModel):
-    name = models.CharField(max_length=100)
+class Transaction(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
 
-    def get_amount(self):
+    @property
+    def amount(self):
         return self.entries.aggregate(Sum('amount'))['amount__sum'] or 0.0
-    amount = property(get_amount)
 
-    def get_value_date(self):
+    @property
+    def value_date(self):
         try:
             return self.entries.order_by('value_date')[0].value_date
         except IndexError:
             return None
-    value_date = property(get_value_date)
 
     def is_checked(self):
         return self.entries.filter(checked = False).count() == 0
@@ -66,14 +65,15 @@ class Transaction(TimeStampedModel):
     def __unicode__(self):
         return u"%s" % self.name
 
-class Entry(TimeStampedModel):
+class Entry(models.Model):
     account = models.ForeignKey(Account, related_name="entries")
     transaction = models.ForeignKey(Transaction, related_name="entries")
     third_party = models.ForeignKey(ThirdParty, related_name="entries", blank=True, null=True)
     amount = models.FloatField()
+    date = models.DateField()
     value_date = models.DateField()
     checked = models.BooleanField(default=False)
-    tags = models.ManyToManyField(Tag, related_name="entries")
+    tags = models.ManyToManyField(Tag, related_name="entries", blank=True, null=True)
 
     def name(self):
         return self.transaction.name
@@ -82,4 +82,4 @@ class Entry(TimeStampedModel):
         return u"%s" % self.name
 
     class Meta:
-        verbose_name_plural = "Entries"
+        verbose_name_plural = "entries"
