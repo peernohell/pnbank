@@ -46,8 +46,8 @@ class ThirdParty(models.Model):
         verbose_name_plural = "Third Parties"
 
 class Transaction(TimeStampedModel):
+    name = models.CharField(max_length=100)
     description = models.CharField(max_length=255, blank=True, null=True)
-    third_party = models.ForeignKey(ThirdParty, related_name="%(class)ss", blank=True, null=True)
 
     def get_amount(self):
         return self.entries.aggregate(Sum('amount'))['amount__sum'] or 0.0
@@ -69,11 +69,11 @@ class Transaction(TimeStampedModel):
 class Entry(TimeStampedModel):
     account = models.ForeignKey(Account, related_name="entries")
     transaction = models.ForeignKey(Transaction, related_name="entries")
+    third_party = models.ForeignKey(ThirdParty, related_name="entries", blank=True, null=True)
     amount = models.FloatField()
     value_date = models.DateField()
     checked = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag, related_name="entries")
-    description = models.CharField(max_length=255, blank=True, null=True)
 
     def name(self):
         return self.transaction.name

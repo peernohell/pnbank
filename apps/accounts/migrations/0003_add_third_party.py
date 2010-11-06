@@ -19,18 +19,18 @@ class Migration(SchemaMigration):
 
         # Deleting field 'Transaction.date'
         db.delete_column('accounts_transaction', 'date')
+				
+
+
 
         # Deleting field 'Transaction.name'
-        db.delete_column('accounts_transaction', 'name')
+        # db.delete_column('accounts_transaction', 'name') // name will be remove after data migration
 
-        # Adding field 'Transaction.third_party'
-        db.add_column('accounts_transaction', 'third_party', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='transactions', null=True, to=orm['accounts.ThirdParty']), keep_default=False)
+        # Adding field 'Entry.third_party'
+        db.add_column('accounts_entry', 'third_party', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='entries', null=True, to=orm['accounts.ThirdParty']), keep_default=False)
 
         # Changing field 'Transaction.description'
         db.alter_column('accounts_transaction', 'description', self.gf('django.db.models.fields.CharField')(max_length=255, null=True))
-
-        # Adding field 'Entry.description'
-        db.add_column('accounts_entry', 'description', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True), keep_default=False)
 
         # Adding field 'Tag.owner'
         db.add_column('accounts_tag', 'owner', self.gf('django.db.models.fields.related.ForeignKey')(default=0, related_name='tags', to=orm['auth.User']), keep_default=False)
@@ -48,10 +48,10 @@ class Migration(SchemaMigration):
         db.add_column('accounts_transaction', 'date', self.gf('django.db.models.fields.DateField')(default=None), keep_default=False)
 
         # Adding field 'Transaction.name'
-        db.add_column('accounts_transaction', 'name', self.gf('django.db.models.fields.CharField')(default=None, max_length=100), keep_default=False)
+        #db.add_column('accounts_transaction', 'name', self.gf('django.db.models.fields.CharField')(default=None, max_length=100), keep_default=False)
 
         # Deleting field 'Transaction.third_party'
-        db.delete_column('accounts_transaction', 'third_party_id')
+        db.delete_column('accounts_entry', 'third_party_id')
 
         # Changing field 'Transaction.description'
         db.alter_column('accounts_transaction', 'description', self.gf('django.db.models.fields.TextField')(null=True))
