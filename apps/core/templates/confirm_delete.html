@@ -19,7 +19,7 @@
             Delete {{ object_name }}
         </button>
 
-        <a href="{% url view_account object.pk %}" class="button">
+        <a href="{% firstof redirect object.get_absolute_url %}" class="button">
             Cancel
         </a>
     </div>

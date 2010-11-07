@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+Entry List
+{% endblock %}
+
+{% block content %}
+
+{% if object_list %}
+<div id="entries">
+    {% for object in object_list %}
+    <div class="entry">
+        Entry #{{ object.pk }} |
+        <a href="{% url view_entry account.pk object.pk %}">view</a> |
+        <a href="{% url update_entry account.pk object.pk %}">edit</a> |
+        <a href="{% url delete_entry account.pk object.pk %}">delete</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="info">
+    No entry found. <a href="{% url create_entry account.pk %}">Create a new entry ?</a>
+</div>
+{% endif %}
+
+{% endblock %}

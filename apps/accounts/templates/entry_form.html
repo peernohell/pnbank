@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
 {% block title %}
-Account {% if object %}Update{% else %}Creation{% endif %}
+Entry {% if object %}Update{% else %}Creation{% endif %}
 {% endblock %}
 
 {% block content %}
 {% if form.errors %}
     {{ form.errors }}
 {% endif %}
-<form id="account_form" method="post" action="{{ request.path }}" enctype="multipart/form-data">
+<form id="entry_form" method="post" action="{{ request.path }}" enctype="multipart/form-data">
     {% csrf_token %}
 
     {{ form.as_p }}
 
     <div class="actions">
         <button type="submit" class="primal">
-            {% if object %}Update{% else %}Create{% endif %} Account
+            {% if object %}Update{% else %}Create{% endif %} Entry
         </button>
 
-        <a href="{% url list_accounts %}" class="button">
+        <a href="{% url list_entries account.pk %}" class="button">
             Cancel
         </a>
     </div>

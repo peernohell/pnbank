@@ -63,7 +63,7 @@ class Transaction(models.Model):
         return self.entries.filter(checked = False).count() == 0
 
     def __unicode__(self):
-        return u"%s" % self.name
+        return u"%s" % self.description
 
 class Entry(models.Model):
     account = models.ForeignKey(Account, related_name="entries")
@@ -71,7 +71,7 @@ class Entry(models.Model):
     third_party = models.ForeignKey(ThirdParty, related_name="entries", blank=True, null=True)
     amount = models.FloatField()
     date = models.DateField()
-    value_date = models.DateField()
+    value_date = models.DateField(blank=True, null=True)
     checked = models.BooleanField(default=False)
     tags = models.ManyToManyField(Tag, related_name="entries", blank=True, null=True)
 
@@ -79,7 +79,9 @@ class Entry(models.Model):
         return self.transaction.name
 
     def __unicode__(self):
-        return u"%s" % self.name
+        return u"Entry #%d" % self.pk
 
     class Meta:
         verbose_name_plural = "entries"
+        ordering = ['-date']
+

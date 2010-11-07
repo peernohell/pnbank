@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+Entry Details
+{% endblock %}
+
+{% block content %}
+<div class="entry">
+    <strong>Account</strong> {{ object.account }}<br />
+    <strong>Transaction</strong> {{ object.transaction }}<br />
+    <strong>Third Party</strong> {{ object.third_party }}<br />
+    <strong>Amount</strong> {{ object.amount }}<br />
+    <strong>Date</strong> {{ object.date }}<br />
+    <strong>Value Date</strong> {{ object.value_date }}<br />
+    <strong>Checked</strong> {{ object.checked }}<br />
+    <strong>Tags</strong> {{ object.tags.all|join:", "|default:"&mdash;" }}<br />
+</div>
+
+<a href="{% url update_entry account.pk object.pk %}" class="button primal">Edit Entry</a>
+<a href="{% url delete_entry account.pk object.pk %}" class="button">Delete Entry</a>
+<a href="{% url list_entries account.pk %}" class="button">Back to Entry List</a>
+
+{% endblock %}
