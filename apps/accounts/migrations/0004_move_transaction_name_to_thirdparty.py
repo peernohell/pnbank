@@ -7,16 +7,21 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
+        default_owner = orm['auth.User'].objects.get(id=1);
         for t in orm['accounts.Transaction'].objects.all():
             try:
                 owner = t.entries.all()[0].account.owner
             except IndexError:
-                owner = None
+                owner = default_owner
 
-            orm['accounts.ThirdParty'].objects.get_or_create(
+            third_party, created = orm['accounts.ThirdParty'].objects.get_or_create(
                 name = t.name,
                 owner = owner
             )
+            for e in t.entries.all():
+                e.third_party = third_party
+                e.save();
+
 
     def backwards(self, orm):
         for t in orm['accounts.Transaction'].objects.all():
