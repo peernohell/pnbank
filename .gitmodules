@@ -10,3 +10,6 @@
 [submodule "externals/django-qsstats.git"]
 	path = externals/django-qsstats.git
 	url = git://github.com/mcroydon/django-qsstats.git
+[submodule "externals/django-mobile.git"]
+	path = externals/django-mobile.git
+	url = git://github.com/gregmuellegger/django-mobile.git
