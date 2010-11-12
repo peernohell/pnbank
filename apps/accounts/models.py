@@ -76,7 +76,7 @@ class Entry(models.Model):
     tags = models.ManyToManyField(Tag, related_name="entries", blank=True, null=True)
 
     def name(self):
-        return self.transaction.name
+        return self.third_party.name
 
     def __unicode__(self):
         return u"Entry #%d" % self.pk
