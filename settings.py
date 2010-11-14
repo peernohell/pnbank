@@ -75,7 +75,8 @@ SECRET_KEY = '%!&le_74+7l+b0o8r#a3=*3&1av2x9k^47a722@4vgav(!4(p9'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django_mobile.loader.Loader',
+    'pnbank.utils.loader.Loader',
+    #'django_mobile.loader.Loader',
     #'django.template.loaders.filesystem.load_template_source',
     #'django.template.loaders.app_directories.load_template_source',
     #'django.template.loaders.eggs.load_template_source',
@@ -83,12 +84,12 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django_mobile.context_processors.flavour",
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
     "django.core.context_processors.i18n",
     "django.core.context_processors.media",
     "django.core.context_processors.request",
+    "django_mobile.context_processors.flavour",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,10 +101,10 @@ MIDDLEWARE_CLASSES = (
     #'djangodblog.middleware.DBLogMiddleware',
     #'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
-		'django_mobile.middleware.MobileDetectionMiddleware',
-		'django_mobile.middleware.SetFlavourMiddleware',
     #'django.contrib.csrf.middleware.CsrfMiddleware',
     #'django.contrib.csrf.middleware.CsrfViewMiddleware',
+    'django_mobile.middleware.MobileDetectionMiddleware',
+    'django_mobile.middleware.SetFlavourMiddleware',
 )
 if DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES += (
@@ -132,7 +133,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'qsstats',
     'south',
-		'django_mobile',
+    'django_mobile',
 
     'pnbank.apps.accounts',
     'pnbank.apps.core',
@@ -192,5 +193,10 @@ CSVIMPORTER_DATA_TRANSFORMS = {
 
 ## South
 SOUTH_TESTS_MIGRATE  = False
+
+## Django Mobile
+FLAVOURS_TEMPLATE_LOADERS = [
+    'django.template.loaders.app_directories.Loader',
+]
 
 from local_settings import *
